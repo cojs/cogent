@@ -1,10 +1,9 @@
 var url = require('url')
+var zlib = require('zlib')
 var http = require('http')
 var https = require('https')
-var crypto = require('crypto')
 var saveTo = require('save-to')
 var rawBody = require('raw-body')
-var toArray = require('stream-to-array')
 
 module.exports = cogent
 
@@ -16,16 +15,21 @@ var redirectStatusCodes = [
 ]
 
 function* cogent(uri, options) {
+  if (options === true) options = { json: true }
+  if (typeof options === 'string') options = { destination: options }
   options = options || {}
-  options.headers = options.headers || {}
-  options.headers['accept-encoding'] = 'gzip'
+  var headers = options.headers = options.headers || {}
+  headers['accept-encoding'] = 'gzip'
+  if (options.json) headers['accept'] = 'application/json'
 
   var o, req, res, code, stream
-  do {
-    o = url.parse(uri)
-    mergeRequestOptions(o, options)
+  while (true) {
+    o = mergeRequestOptions(url.parse(uri), options)
     res = yield function (done) {
-      (o.protocol === 'https:' ? https : http).request(o, done)
+      req = (o.protocol === 'https:' ? https : http).request(o)
+      req.once('response', done.bind(null, null))
+      req.once('error', done)
+      req.end()
     }
     code = res.statusCode
 
@@ -38,45 +42,37 @@ function* cogent(uri, options) {
 
     // unzip
     if (res.headers['content-encoding'] === 'gzip') {
-      stream = res.pipe(crypto.createGunzip())
+      stream = res.pipe(zlib.createGunzip())
       stream.res = res
+      // pass useful response stuff
       stream.statusCode = code
+      stream.headers = res.headers
       res = stream
     }
 
-    // okay!
-    if (code === 200) {
-      // save to a file and return the destination
-      if (options.save) return yield saveTo(res, options.save)
-      // return JSON
-      if ((options.buffer || options.string) && isJSON(res))
-        return JSON.parse(yield rawBody(res, {
-          encoding: 'utf8'
-        }))
+    res.req = req
 
-      if (options.buffer) {
-        res.buffer = Buffer.concat(yield toArray(res))
-        if (options.string) res.text = res.buffer.toString('utf8')
-      } else if (options.string) {
-        res.text = yield rawBody(res, {
-          encoding: options.string
-        })
-      }
+    if (code === 200 && options.destination) {
+      yield saveTo(res, options.destination)
+      res.destination = options.destination
+      return res
     }
 
+    if (options.buffer) res.buffer = yield rawBody(res)
+    if (options.string || options.json)
+      res.text = res.buffer
+        ? res.buffer.toString('utf8')
+        : yield rawBody(res, { encoding: options.string || true })
+    if (options.json && code === 200) res.body = JSON.parse(res.text)
+
     return res
-  } while (true)
+  }
 }
 
 function mergeRequestOptions(dest, src) {
-  dest.method = (src.method || 'GET').toUpperCase()
-  dest.auth = src.auth
-  dest.agent = src.agent
   dest.headers = src.headers
+  if ('method' in src) dest.method = src.method
+  if ('auth' in src) dest.auth = src.auth
+  if ('agent' in src) dest.agent = src.agent
   return dest
-}
-
-function isJSON(res) {
-  var type = res.headers['content-type']
-  return type && type.split(';')[0] === 'application/json'
 }
