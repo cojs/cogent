@@ -13,6 +13,16 @@ A simple HTTP request agent designed primarily for `GET`ing stuff.
 
 ```js
 var request = require('cogent')
+
+var uri = 'https://raw.github.com/visionmedia/express/master/package.json'
+
+// Save to a file
+var res = yield* request(uri, require('os').tmpdir() + '/express.package.json')
+if (res.destination) console.log('ok')
+
+// Get as JSON
+var res = yield* request(uri, true)
+var json = res.body
 ```
 
 ### var response = yield* request(url, [options])
@@ -40,18 +50,6 @@ If `typeof options === 'string'`, it defaults to `{ destination: string }`.
 - `res.buffer`
 - `res.text`
 - `res.body` - JSON body populated only on a `200`
-
-```js
-var uri = 'https://raw.github.com/visionmedia/express/master/package.json'
-
-// Save to a file
-var res = yield* request(uri, require('os').tmpdir() + '/express.package.json')
-if (res.destination) console.log('ok')
-
-// Get as JSON
-var res = yield* request(uri, true)
-var json = res.body
-```
 
 ## License
 
