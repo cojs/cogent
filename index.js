@@ -48,6 +48,8 @@ function* cogent(uri, options) {
       stream.statusCode = code
       stream.headers = res.headers
       res = stream
+    } else {
+      res.res = res
     }
 
     res.req = req

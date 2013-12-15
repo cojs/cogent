@@ -42,8 +42,7 @@ If `typeof options === 'string'`, it defaults to `{ destination: string }`.
 `response` will have the following properties:
 
 - `res.req` - the request object
-- `res.res` - if the response was gunzipped, it'll return the gunzip stream.
-  The original response object will be stored as `res.res`.
+- `res.res` - the response object, itself if the response was not gzipped
 - `res.statusCode`
 - `res.headers`
 - `res.destination` - populated only if the file was successfully saved on a `200`

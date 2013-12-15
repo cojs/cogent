@@ -20,8 +20,8 @@
     "url": "https://github.com/cojs/cogent/issues"
   },
   "dependencies": {
-    "save-to": "*",
-    "raw-body": "*"
+    "save-to": "~1.0.2",
+    "raw-body": "~1.1.2"
   },
   "devDependencies": {
     "co": "visionmedia/co",
