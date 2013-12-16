@@ -64,4 +64,13 @@ describe('cogent', function () {
     res.statusCode.should.equal(200)
     res.body.name.should.equal('inherits')
   }))
+
+  it('should work with retries', co(function* () {
+    var res = yield* request(uri, {
+      retries: 2
+    })
+    res.statusCode.should.equal(200)
+    res.headers['content-encoding'].should.equal('gzip')
+    res.resume()
+  }))
 })

@@ -14,22 +14,48 @@ var redirectStatusCodes = [
   307,
 ]
 
+var httpErrorStati = [
+  502,
+  503,
+  504,
+]
+
+var httpErrorCodes = [
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'EADDRINFO',
+  'ESOCKETTIMEDOUT',
+]
+
 function* cogent(uri, options) {
   if (options === true) options = { json: true }
   if (typeof options === 'string') options = { destination: options }
   options = options || {}
   var headers = options.headers = options.headers || {}
   headers['accept-encoding'] = 'gzip'
-  if (options.json) headers['accept'] = 'application/json'
+  if (options.json) headers.accept = 'application/json'
+  var retries = options.retries || 0
 
   var o, req, res, code, stream
   while (true) {
     o = mergeRequestOptions(url.parse(uri), options)
-    res = yield function (done) {
+    res = yield function tryRequest(done) {
       req = (o.protocol === 'https:' ? https : http).request(o)
-      req.once('response', done.bind(null, null))
-      req.once('error', done)
+      req.once('response', next.bind(null, null))
+      req.once('error', next)
       req.end()
+
+      function next(err, res) {
+        if (retries && (
+          (err && ~httpErrorCodes.indexOf(err.code)) ||
+          ~httpErrorStati.indexOf(res.statusCode)
+        )) {
+          retries--
+          trythis(done)
+        } else {
+          done(err, res)
+        }
+      }
     }
     code = res.statusCode
 
