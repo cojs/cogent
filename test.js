@@ -7,7 +7,7 @@ var request = require('./')
 
 var tmpdir = os.tmpdir()
 var uri = 'https://raw.github.com/component/domify/84b1917ea5a9451f5add48c5f61e477f2788532b/component.json'
-var redirect = 'https://raw.github.com/component/inherits/master/component.json'
+var redirect = 'https://raw.github.com/jonathanong/inherits/master/component.json'
 
 describe('cogent', function () {
   it('should work with HTTPS', co(function* () {
