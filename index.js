@@ -4,13 +4,16 @@ var http = require('http')
 var https = require('https')
 var saveTo = require('save-to')
 var rawBody = require('raw-body')
+var proxyAgent = require('proxy-agent')
 
-module.exports = cogent
+exports = module.exports = create()
+exports.extend = create
 
 var redirectStatusCodes = [
   301,
   302,
   303,
+  305,
   307,
 ]
 
@@ -27,80 +30,133 @@ var httpErrorCodes = [
   'ESOCKETTIMEDOUT',
 ]
 
-function* cogent(uri, options) {
-  if (options === true) options = { json: true }
-  if (typeof options === 'string') options = { destination: options }
-  options = options || {}
-  var headers = options.headers = options.headers || {}
-  headers['accept-encoding'] = 'gzip'
-  if (options.json) headers.accept = 'application/json'
-  var retries = options.retries || 0
+function create(defaults) {
+  defaults = defaults || {}
+  defaults.retries = defaults.retries || 0
+  defaults.redirects = 'redirects' in defaults ? defaults.redirects : 1
+  defaults.timeout = defaults.timeout || 30000
+  defaults.method = defaults.method || 'GET'
 
-  var o, req, res, code, stream
-  while (true) {
-    o = mergeRequestOptions(url.parse(uri), options)
-    res = yield function tryRequest(done) {
-      req = (o.protocol === 'https:' ? https : http).request(o)
-      req.once('response', next.bind(null, null))
-      req.once('error', next)
-      req.end()
+  return cogent
 
-      function next(err, res) {
-        if (retries && (
-          (err && ~httpErrorCodes.indexOf(err.code)) ||
-          ~httpErrorStati.indexOf(res.statusCode)
-        )) {
-          retries--
-          trythis(done)
-        } else {
-          done(err, res)
+  function* cogent(uri, options) {
+    // options type checking stuff
+    if (options === true)
+      options = { json: true }
+    else if (typeof options === 'string')
+      options = { destination: options }
+    else if (!options)
+      options = {}
+
+    // setup defaults
+    var redirects = options.redirects || defaults.redirects
+    var timeout = options.timeout || defaults.timeout
+
+    // setup headers
+    var headers = options.headers = options.headers || {}
+    headers['accept-encoding'] = 'gzip'
+    if (options.json)
+      headers.accept = 'application/json'
+
+    var o, req, res, code, stream, securrrr, retries
+    // while loop to handle redirects
+    while (true) {
+      // create the request options object
+      o = url.parse(uri)
+      securrrr = o.protocol === 'https:'
+      o.headers = options.headers
+      o.method = options.method || defaults.method
+
+      // use node's auth
+      if (options.auth || defaults.auth)
+        o.auth = options.auth || defaults.auth
+
+      // setup agent or proxy agent
+      if ('agent' in options) {
+        o.agent = options.agent
+      } else if (options.proxy || defaults.proxy) {
+        var agent = proxyAgent(options.proxy || defaults.proxy, securrrr)
+        if (agent)
+          o.agent = agent
+      } else if ('agent' in defaults) {
+        o.agent = defaults.agent
+      }
+
+      // retries is on a per-URL-request basis
+      retries = options.retries || defaults.retries
+
+      res = yield function request(done) {
+        // timeout
+        // note: timeout is only for the response,
+        // not the entire request
+        var id = setTimeout(function () {
+          var err = new Error('timeout of ' + timeout + 'ms exceeded.')
+          err.url = o
+          next(err)
+        }, timeout)
+
+        req = (securrrr ? https : http).request(o)
+        req.once('response', next.bind(null, null))
+        req.once('error', next)
+        req.end()
+
+        function next(err, res) {
+          if (retries && (
+            (err && ~httpErrorCodes.indexOf(err.code)) ||
+            ~httpErrorStati.indexOf(res.statusCode)
+          )) {
+            retries--
+            request(done)
+          } else {
+            done(err, res)
+          }
+          clearTimeout(id)
         }
       }
-    }
-    code = res.statusCode
+      code = res.statusCode
 
-    // redirect
-    if (~redirectStatusCodes.indexOf(code)) {
-      uri = url.resolve(uri, res.headers.location)
-      res.resume() // dump the stream
-      continue
-    }
+      // redirect
+      if (redirects-- && ~redirectStatusCodes.indexOf(code)) {
+        uri = url.resolve(uri, res.headers.location)
+        res.resume() // dump this stream
+        continue
+      }
 
-    // unzip
-    if (res.headers['content-encoding'] === 'gzip') {
-      stream = res.pipe(zlib.createGunzip())
-      stream.res = res
-      // pass useful response stuff
-      stream.statusCode = code
-      stream.headers = res.headers
-      res = stream
-    } else {
-      res.res = res
-    }
+      // unzip
+      if (res.headers['content-encoding'] === 'gzip') {
+        stream = res.pipe(zlib.createGunzip())
+        stream.res = res
+        // pass useful response stuff
+        stream.statusCode = code
+        stream.headers = res.headers
+        res = stream
+      } else {
+        res.res = res
+      }
 
-    res.req = req
+      res.req = req
 
-    if (code === 200 && options.destination) {
-      yield saveTo(res, options.destination)
-      res.destination = options.destination
+      // save the file
+      if (code === 200 && options.destination) {
+        yield saveTo(res, options.destination)
+        res.destination = options.destination
+        return res
+      }
+
+      // buffer the response
+      if (options.buffer)
+        res.buffer = yield rawBody(res)
+      // buffer the response as a string or object
+      if (options.string || options.json)
+        res.text = res.buffer
+          ? res.buffer.toString('utf8')
+          : yield rawBody(res, { encoding: options.string || true })
+      // buffer the response as JSON
+      if (options.json) try {
+        res.body = JSON.parse(res.text)
+      } catch (err) {}
+
       return res
     }
-
-    if (options.buffer) res.buffer = yield rawBody(res)
-    if (options.string || options.json)
-      res.text = res.buffer
-        ? res.buffer.toString('utf8')
-        : yield rawBody(res, { encoding: options.string || true })
-    if (options.json && code === 200) res.body = JSON.parse(res.text)
-
-    return res
   }
-}
-
-function mergeRequestOptions(dest, src) {
-  dest.headers = src.headers
-  if ('method' in src) dest.method = src.method
-  if ('auth' in src) dest.auth = src.auth
-  if ('agent' in src) dest.agent = src.agent
-  return dest
 }

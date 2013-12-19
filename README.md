@@ -5,6 +5,8 @@ A simple HTTP request agent designed primarily for `GET`ing stuff.
 ## Features
 
 - Resolve redirects
+- Proxy agent support
+- Timeout support
 - Automatic gunzipping
 - First-class JSON support
 - Buffer the response or save it to a file
@@ -35,6 +37,10 @@ Additional options are:
 - `string` - buffer the response as a string and save it as `res.text`
 - `json` - buffer the response as an object and save it as `res.body`
 - `destination` - cojs/cogent the response to the file `destination`
+- `proxy` - a URL for a proxy server
+- `timeout` - response header timeout per try, default `30 seconds`
+- `retries` - number of retries when request fails due to common server errors, default `0`
+- `redirects` - resolve redirects, default `1`
 
 If `options === true`, it defaults to `{ json: true }`.
 If `typeof options === 'string'`, it defaults to `{ destination: string }`.
@@ -49,6 +55,27 @@ If `typeof options === 'string'`, it defaults to `{ destination: string }`.
 - `res.buffer`
 - `res.text`
 - `res.body` - JSON body populated only on a `200`
+
+### request = request.extend(options)
+
+Create a new `cogent` instance with default options. This allows you to avoid setting the same options every time. See the options listed above.
+
+- `timeout`
+- `retries`
+- `redirects`
+- `timeout`
+- `agent`
+- `proxy`
+- `method`
+
+```js
+var request = require('cogent').extend({
+  auth: 'username:password'
+})
+
+var res = yield* request('http://localhost/', true)
+// will send with auth header
+```
 
 ## License
 
