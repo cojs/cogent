@@ -2,6 +2,8 @@
 
 A simple HTTP request agent designed primarily for `GET`ing stuff.
 
+Note: this library relies on [co](https://github.com/visionmedia/co), but does not depend on it directly. You need to install it yourself.
+
 ## Features
 
 - Resolve redirects
