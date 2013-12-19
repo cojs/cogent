@@ -86,6 +86,8 @@ function create(defaults) {
       retries = options.retries || defaults.retries
 
       res = yield function request(done) {
+        var called = false
+
         // timeout
         // note: timeout is only for the response,
         // not the entire request
@@ -101,6 +103,12 @@ function create(defaults) {
         req.end()
 
         function next(err, res) {
+          if (called)
+            return
+
+          called = true
+          clearTimeout(id)
+
           if (retries && (
             (err && ~httpErrorCodes.indexOf(err.code)) ||
             ~httpErrorStati.indexOf(res.statusCode)
@@ -110,7 +118,6 @@ function create(defaults) {
           } else {
             done(err, res)
           }
-          clearTimeout(id)
         }
       }
       code = res.statusCode
