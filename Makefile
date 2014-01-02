@@ -1,9 +1,15 @@
 BIN = ./node_modules/.bin/
 
 test:
-	@${BIN}mocha \
+	@$(BIN)mocha \
 		--harmony \
 		--require should \
 		--reporter spec
 
-.PHONY: test
+build:
+	@mkdir -p build
+	@$(BIN)regenerator \
+		--include-runtime \
+		lib/index.js > build/index.js
+
+.PHONY: test build

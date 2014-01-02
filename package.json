@@ -3,7 +3,8 @@
   "version": "0.3.2",
   "description": "Simpler HTTP requests using co",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "prepublish": "make build"
   },
   "repository": {
     "type": "git",
@@ -25,12 +26,13 @@
     "raw-body": "~1.1.2"
   },
   "devDependencies": {
-    "co": "~2.0",
+    "co": "~3.0",
     "mocha": "~1.6",
-    "should": "~2.1"
+    "should": "~2.1",
+    "regenerator": "~0.3.4"
   },
   "peerDependencies": {
-    "co": ">= 2"
+    "co": "3"
   },
   "engines": {
     "node": ">= 0.11.3"

@@ -1,7 +1,9 @@
 var co = require('co')
 var os = require('os')
-var path = require('path')
 var fs = require('fs')
+var path = require('path')
+var http = require('http')
+var assert = require('assert')
 
 var request = require('./')
 
@@ -73,4 +75,25 @@ describe('cogent', function () {
     res.headers['content-encoding'].should.equal('gzip')
     res.resume()
   }))
+
+  describe('when gunzip=false', function () {
+    it('should return an uncompressed stream', co(function* () {
+      var res = yield* request(uri, {
+        gunzip: false
+      })
+      assert.ok(res instanceof http.IncomingMessage)
+    }))
+
+    it('should throw if buffering the response', co(function* () {
+      try {
+        var res = yield* request(uri, {
+          gunzip: false,
+          buffer: true
+        })
+        throw new Error('boom')
+      } catch (err) {
+        err.message.should.not.equal('boom')
+      }
+    }))
+  })
 })
