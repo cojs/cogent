@@ -33,6 +33,17 @@ var res = yield* request(uri, true)
 var json = res.body
 ```
 
+You can also use it without generators by wrapping it with [co](https://github.com/visionmedia/co):
+
+```js
+var co = require('co')
+var request = co(require('cogent'))
+
+request('https://github.com', function (err, res) {
+  res.pipe(process.stdout)
+})
+```
+
 ### var response = yield* request(url, [options])
 
 `url` is the URL of the request.
