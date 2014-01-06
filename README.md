@@ -20,6 +20,10 @@ var request = require('cogent')
 
 var uri = 'https://raw.github.com/visionmedia/express/master/package.json'
 
+// Pipe stdout
+var res = yield* request(uri)
+res.pipe(process.stdout)
+
 // Save to a file
 var res = yield* request(uri, require('os').tmpdir() + '/express.package.json')
 if (res.destination) console.log('ok')
