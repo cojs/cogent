@@ -13,6 +13,15 @@ describe('buffer', function () {
     res.buffer.should.be.a.Buffer
   }))
 
+  it('should not buffer the response on HEAD requests', co(function* () {
+    var res = yield* request(uri, {
+      method: 'HEAD',
+      buffer: true
+    })
+    res.statusCode.should.equal(200)
+    res.should.not.have.property('buffer')
+  }))
+
   it('should buffer the response as a string', co(function* () {
     var res = yield* request(uri, {
       string: true
