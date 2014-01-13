@@ -4,8 +4,10 @@ var fs = require('fs')
 var path = require('path')
 var http = require('http')
 var assert = require('assert')
+var koa = require('koa')
+var auth = require('koa-basic-auth')
 
-var request = require('./')
+var request = require('..')
 
 var tmpdir = os.tmpdir()
 var uri = 'https://raw.github.com/component/domify/84b1917ea5a9451f5add48c5f61e477f2788532b/component.json'
@@ -94,6 +96,51 @@ describe('cogent', function () {
       } catch (err) {
         err.message.should.not.equal('boom')
       }
+    }))
+  })
+
+  describe('auth', function () {
+    var app = koa()
+
+    app.use(auth({
+      name: 'name',
+      pass: 'pass'
+    }))
+
+    app.use(function* () {
+      this.status = 204
+    })
+
+    var uri = 'http://localhost:'
+
+    it('server should start', function (done) {
+      var server = app.listen(function (err) {
+        if (err) return done(err)
+        uri += this.address().port
+        done()
+      })
+    })
+
+    it('should work when passing .auth', co(function* () {
+      var res = yield* request(uri, {
+        auth: 'name:pass'
+      })
+      res.statusCode.should.equal(204)
+    }))
+
+    it('should work with netrc', co(function* () {
+      var res = yield* request(uri, {
+        netrc: path.join(__dirname, '.netrc')
+      })
+      res.statusCode.should.equal(204)
+    }))
+
+    it('should work with netrc as extension', co(function* () {
+      var req = request.extend({
+        netrc: path.join(__dirname, '.netrc')
+      })
+      var res = yield* req(uri)
+      res.statusCode.should.equal(204)
     }))
   })
 })
