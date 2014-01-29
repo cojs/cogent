@@ -1,15 +1,22 @@
 BIN = ./node_modules/.bin/
-
-test:
-	@$(BIN)mocha \
-		--harmony \
-		--require should \
-		--reporter spec
+SRC = $(shell find lib -name "*.js")
+BUILD = $(subst lib,build,$(SRC))
+NODE ?= node
 
 build:
 	@mkdir -p build
-	@$(BIN)regenerator \
-		--include-runtime \
-		lib/index.js > build/index.js
+	@$(MAKE) $(BUILD)
+
+build/%.js: lib/%.js
+	@$(BIN)regenerator $< > $@
+
+clean:
+	@rm -rf build
+
+test:
+	@$(NODE) $(BIN)mocha \
+		--harmony \
+		--require should \
+		--reporter spec
 
 .PHONY: test build
