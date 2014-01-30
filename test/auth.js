@@ -2,6 +2,7 @@ var co = require('co')
 var koa = require('koa')
 var path = require('path')
 var auth = require('koa-basic-auth')
+var setup = require('proxy')
 
 var request = require('..')
 
@@ -18,6 +19,7 @@ describe('auth', function () {
   })
 
   var uri = 'http://localhost:'
+  var server = setup(app)
 
   it('server should start', function (done) {
     app.listen(function (err) {
@@ -27,12 +29,27 @@ describe('auth', function () {
     })
   })
 
+  it('proxy server should start', function (done) {
+    server.listen(4205, function (err) {
+      if (err) return done(err)
+      done()
+    })
+  })  
+
   it('should work when passing .auth', co(function* () {
     var res = yield* request(uri, {
       auth: 'name:pass'
     })
     res.statusCode.should.equal(204)
   }))
+
+  it('should work when passing proxy', co(function* () {
+    var res = yield* request(uri, {
+      auth: 'name:pass',
+      proxy: 'http://localhost:4205'
+    })
+    res.statusCode.should.equal(204)
+  }))  
 
   it('should work with netrc', co(function* () {
     var res = yield* request(uri, {
