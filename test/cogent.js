@@ -2,12 +2,16 @@ var co = require('co')
 var os = require('os')
 var fs = require('fs')
 var path = require('path')
+var http = require('http')
+var setup = require('proxy')
 
 var request = require('..')
 
 var tmpdir = os.tmpdir()
 var uri = 'https://raw.github.com/component/domify/84b1917ea5a9451f5add48c5f61e477f2788532b/component.json'
 var redirect = 'https://raw.github.com/jonathanong/inherits/master/component.json'
+
+var server = setup(http.createServer())
 
 describe('cogent', function () {
   it('should work with HTTPS', co(function* () {
@@ -16,6 +20,22 @@ describe('cogent', function () {
     res.headers['content-encoding'].should.equal('gzip')
     res.resume()
   }))
+
+  it('proxy server should start', function (done) {
+    server.listen(4205, function (err) {
+      if (err) return done(err)
+      done()
+    })
+  })   
+
+  it('should work with HTTP proxy', co(function* () {
+    var res = yield* request(uri, {
+      proxy: 'http://localhost:4205'
+    })
+    res.statusCode.should.equal(200)
+    res.headers['content-encoding'].should.equal('gzip')
+    res.resume()
+  }))  
 
   it('should save to a file', co(function* () {
     var destination = path.join(tmpdir, Math.random().toString(36).slice(2))
