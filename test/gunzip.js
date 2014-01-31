@@ -14,6 +14,14 @@ describe('when gunzip=false', function () {
     assert.ok(res instanceof http.IncomingMessage)
   }))
 
+  it('should return an uncompressed stream with HTTP proxy', co(function* () {
+    var res = yield* request(uri, {
+      gunzip: false,
+      proxy: 'http://localhost:4205'
+    })
+    assert.ok(res instanceof http.IncomingMessage)
+  }))  
+
   it('should throw if buffering the response', co(function* () {
     try {
       var res = yield* request(uri, {

@@ -21,7 +21,7 @@ describe('cogent', function () {
     res.resume()
   }))
 
-  it('proxy server should start', function (done) {
+  it('should start proxy server', function (done) {
     server.listen(4205, function (err) {
       if (err) return done(err)
       done()
