@@ -1,6 +1,6 @@
 {
   "name": "cogent",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "Simpler HTTP requests using co",
   "scripts": {
     "test": "NODE=gnode make test",
