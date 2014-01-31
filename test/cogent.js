@@ -22,10 +22,7 @@ describe('cogent', function () {
   }))
 
   it('should start proxy server', function (done) {
-    server.listen(4205, function (err) {
-      if (err) return done(err)
-      done()
-    })
+    server.listen(4205, done)
   })   
 
   it('should work with HTTP proxy', co(function* () {

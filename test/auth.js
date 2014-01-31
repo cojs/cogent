@@ -30,10 +30,7 @@ describe('auth', function () {
   })
 
   it('should start proxy server', function (done) {
-    server.listen(4206, function (err) {
-      if (err) return done(err)
-      done()
-    })
+    server.listen(4206, done)
   })  
 
   it('should work when passing .auth', co(function* () {
