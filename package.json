@@ -3,8 +3,7 @@
   "version": "0.3.10",
   "description": "Simpler HTTP requests using co",
   "scripts": {
-    "test": "NODE=gnode make test",
-    "prepublish": "make clean build"
+    "test": "NODE=gnode make test"
   },
   "repository": {
     "type": "git",
@@ -25,8 +24,7 @@
     "netrc": "~0.1.3",
     "proxy-agent": "~1.1.0",
     "save-to": "~1.0.2",
-    "raw-body": "~1.1.2",
-    "regenerator": "~0.3.6"
+    "raw-body": "~1.1.2"
   },
   "devDependencies": {
     "koa": "~0.2.1",
