@@ -1,6 +1,6 @@
 {
   "name": "cogent",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "Simpler HTTP requests using co",
   "repository": {
     "type": "git",
@@ -32,7 +32,6 @@
     "co": "~3.0",
     "mocha": "^1.6",
     "should": "^3.0",
-    "gnode": "~0.0.6",
     "proxy": "~0.2.1"
   },
   "scripts": {
