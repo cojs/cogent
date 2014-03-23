@@ -1,6 +1,5 @@
-BIN = ./node_modules/.bin/
-NODE ?= node
-SRC = $(shell find lib -name "*.js")
+BIN = $(npm bin)
+SRC = $(wildcard lib/*.js)
 BUILD = $(subst lib,build,$(SRC))
 
 build:
@@ -14,7 +13,7 @@ clean:
 	@rm -rf build
 
 test:
-	@$(NODE) $(BIN)mocha \
+	$(BIN)mocha --require gnode \
 		--harmony-generators \
 		--require should \
 		--reporter spec
