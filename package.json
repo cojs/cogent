@@ -36,7 +36,7 @@
     "proxy": "0"
   },
   "scripts": {
-    "test": "NODE=gnode make test",
+    "test": "make test",
     "prepublish": "make clean build"
   },
   "peerDependencies": {
