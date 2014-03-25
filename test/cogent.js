@@ -23,7 +23,7 @@ describe('cogent', function () {
 
   it('should start proxy server', function (done) {
     server.listen(4205, done)
-  })   
+  })
 
   it('should work with HTTP proxy', co(function* () {
     var res = yield* request(uri, {
@@ -32,7 +32,7 @@ describe('cogent', function () {
     res.statusCode.should.equal(200)
     res.headers['content-encoding'].should.equal('gzip')
     res.resume()
-  }))  
+  }))
 
   it('should save to a file', co(function* () {
     var destination = path.join(tmpdir, Math.random().toString(36).slice(2))
@@ -44,6 +44,7 @@ describe('cogent', function () {
 
   it('should resolve redirects', co(function* () {
     var res = yield* request(redirect, true)
+    res.urls.length.should.equal(2)
     res.statusCode.should.equal(200)
     res.body.name.should.equal('inherits')
   }))
