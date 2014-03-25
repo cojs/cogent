@@ -55,7 +55,7 @@ Additional options are:
 - `json` - buffer the response as an object and save it as `res.body`
 - `destination` - cojs/cogent the response to the file `destination`
 - `proxy` - a URL for a proxy server
-- `timeout` - response header timeout per try, default `30 seconds`
+- `timeout` - response header timeout per try, default `5000 milliseconds`
 - `retries` - number of retries when request fails due to common server errors, default `0`
 - `redirects` - resolve redirects, default `1`
 
@@ -77,13 +77,15 @@ If `typeof options === 'string'`, it defaults to `{ destination: string }`.
 
 Create a new `cogent` instance with default options. This allows you to avoid setting the same options every time. See the options listed above.
 
-- `timeout`
 - `retries`
 - `redirects`
 - `timeout`
+- `method`
+- `gunzip`
+- `netrc`
 - `agent`
 - `proxy`
-- `method`
+
 
 ```js
 var request = require('cogent').extend({
