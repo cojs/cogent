@@ -1,8 +1,11 @@
-# cogent [![Build Status](https://travis-ci.org/cojs/cogent.png)](https://travis-ci.org/cojs/cogent)
+# cogent
+
+[![NPM Version](https://badge.fury.io/js/cogent.svg)](https://badge.fury.io/js/cogent)
+[![Build Status](https://travis-ci.org/cojs/cogent.svg?branch=master)](https://travis-ci.org/cojs/cogent)
+[![Coverage Status](https://img.shields.io/coveralls/cojs/cogent.svg)](https://coveralls.io/r/cojs/cogent)
+[![Gittip](https://img.shields.io/gittip/jonathanong.svg)](https://www.gittip.com/jonathanong/)
 
 A simple HTTP request agent designed primarily for `GET`ing stuff.
-
-Note: this library relies on [co](https://github.com/visionmedia/co), but does not depend on it directly. You need to install it yourself.
 
 ## Features
 
