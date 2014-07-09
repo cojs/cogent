@@ -10,8 +10,8 @@
     "twitter": "https://twitter.com/jongleberry"
   },
   "license": "MIT",
+  "main": "lib",
   "dependencies": {
-    "generator-supported": "~0.0.1",
     "debug": "*",
     "netrc": "~0.1.3",
     "write-to": "^1.0.0",
@@ -19,19 +19,14 @@
     "statuses": "^1.0.2"
   },
   "devDependencies": {
-    "gnode": "0",
-    "regenerator": "0",
     "koa": "0",
     "koa-basic-auth": "^1.1.0",
     "co": "^3.0",
     "mocha": "^1.6",
     "should": "^3.0"
   },
+  "files": ["lib"],
   "scripts": {
-    "test": "make test",
-    "prepublish": "make clean build"
-  },
-  "peerDependencies": {
-    "co": "3"
+    "test": "mocha --harmony-generators --require should --reporter spec"
   }
 }
