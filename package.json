@@ -1,6 +1,6 @@
 {
   "name": "cogent",
-  "version": "0.4.3",
+  "version": "1.0.0",
   "description": "Simpler HTTP requests using co",
   "repository": "cojs/cogent",
   "author": {
@@ -21,13 +21,14 @@
   "devDependencies": {
     "koa": "0",
     "koa-basic-auth": "^1.1.0",
-
     "co": "^3.0",
     "mocha": "^1.6",
     "should": "^3.0",
     "istanbul-harmony": "~0.2.9"
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "test": "mocha --harmony-generators --require should --reporter spec",
     "test-cov": "node --harmony-generators ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --require should",
