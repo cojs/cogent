@@ -33,6 +33,11 @@ describe('cogent', function () {
     res.body.name.should.equal('inherits')
   }))
 
+  it('should not resolve redirects', co(function* () {
+    var res = yield* request(redirect, {string: true, redirects: 0, method: 'GET'})
+    res.statusCode.should.equal(301)
+  }))
+
   it('should work with retries', co(function* () {
     var res = yield* request(uri, {
       retries: 2
