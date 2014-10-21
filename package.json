@@ -1,6 +1,6 @@
 {
   "name": "cogent",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simpler HTTP requests using co",
   "repository": "cojs/cogent",
   "author": {
