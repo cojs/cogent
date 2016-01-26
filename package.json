@@ -22,7 +22,7 @@
     "koa": "0",
     "koa-basic-auth": "^1.1.0",
     "co": "^3.0",
-    "mocha": "^1.6",
+    "mocha": "^2.4.1",
     "should": "^3.0",
     "istanbul-harmony": "~0.2.9"
   },
